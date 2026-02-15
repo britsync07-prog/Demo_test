@@ -16,7 +16,7 @@ const healthApis = [
   { name: 'DictionaryAPI', url: 'https://api.dictionaryapi.dev/api/v2/entries/en/test' },
   { name: 'Wikipedia', url: 'https://en.wikipedia.org/api/rest_v1/page/summary/Wikipedia' },
   { name: 'PageSpeed', url: 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https://example.com' },
-  { name: 'LibreTranslate', url: 'https://libretranslate.de/languages' },
+  { name: 'LibreTranslate', url: 'https://translate.argosopentech.com/languages' },
   { name: 'OMDb', url: 'https://www.omdbapi.com/?apikey=demo&t=Inception' },
   { name: 'DadJoke', url: 'https://icanhazdadjoke.com/' }
 ];
@@ -35,7 +35,10 @@ $('health-check-btn').addEventListener('click', async () => {
       const res = await fetch(api.url, { headers: { Accept: 'application/json' } });
       const type = res.ok ? 'status-ok' : 'status-warn';
       card.classList.add(type);
-      card.textContent = `${api.name}: ${res.status} ${res.statusText}`;
+      const hint = api.name === 'PageSpeed' && res.status === 429
+        ? ' (rate limited; add API key in tool below)'
+        : '';
+      card.textContent = `${api.name}: ${res.status} ${res.statusText}${hint}`;
     } catch (e) {
       card.classList.add('status-fail');
       card.textContent = `${api.name}: failed (${e.message})`;
@@ -135,10 +138,21 @@ $('wiki-btn').addEventListener('click', async () => {
 
 $('speed-btn').addEventListener('click', async () => {
   const url = $('speed-url').value.trim();
+  const key = $('speed-key').value.trim();
   if (!url) return;
 
   try {
-    const data = await fetch(`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&category=PERFORMANCE&category=SEO`).then(safeJson);
+    const endpoint = new URL('https://www.googleapis.com/pagespeedonline/v5/runPagespeed');
+    endpoint.searchParams.set('url', url);
+    endpoint.searchParams.set('category', 'PERFORMANCE');
+    endpoint.searchParams.append('category', 'SEO');
+    if (key) endpoint.searchParams.set('key', key);
+
+    const res = await fetch(endpoint.toString());
+    if (res.status === 429) {
+      throw new Error('Rate limited (429). Add an API key and retry, or wait before sending another request.');
+    }
+    const data = await safeJson(res);
     const categories = data.lighthouseResult.categories;
     setText('speed-output', {
       performance: categories.performance.score * 100,
@@ -156,16 +170,26 @@ $('trans-btn').addEventListener('click', async () => {
   const target = $('trans-to').value.trim();
   if (!text) return;
 
-  try {
-    const data = await fetch('https://libretranslate.de/translate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ q: text, source, target, format: 'text' })
-    }).then(safeJson);
-    setText('trans-output', data.translatedText);
-  } catch (e) {
-    setText('trans-output', `Error: ${e.message}`);
+  const translateEndpoints = [
+    'https://translate.argosopentech.com/translate',
+    'https://libretranslate.de/translate'
+  ];
+
+  let lastError = 'Unknown translation error';
+  for (const endpoint of translateEndpoints) {
+    try {
+      const data = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ q: text, source, target, format: 'text' })
+      }).then(safeJson);
+      return setText('trans-output', `${data.translatedText}\n\n(via ${new URL(endpoint).host})`);
+    } catch (e) {
+      lastError = `${new URL(endpoint).host}: ${e.message}`;
+    }
   }
+
+  setText('trans-output', `Error: ${lastError}. Try again shortly; free public translation endpoints may be temporarily unavailable.`);
 });
 
 $('movie-btn').addEventListener('click', async () => {
