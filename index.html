@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Utility Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>All-in-One Utility Dashboard</h1>
+    <p>Quick checks + practical tools for daily use.</p>
+  </header>
+
+  <main>
+    <section class="panel status-panel">
+      <h2>API Health Dashboard</h2>
+      <p>Run a quick endpoint check. Some APIs may still require keys or have CORS/rate-limit constraints.</p>
+      <button id="health-check-btn">Run Health Check</button>
+      <div id="health-results" class="status-grid"></div>
+    </section>
+
+    <section class="grid">
+      <article class="panel">
+        <h2>Weather Forecast Widget</h2>
+        <label>OpenWeather API Key <input id="weather-key" placeholder="Enter API key" /></label>
+        <label>US City <input id="weather-city" placeholder="e.g. Chicago" /></label>
+        <button id="weather-btn">Get Weather</button>
+        <pre id="weather-output"></pre>
+      </article>
+
+      <article class="panel">
+        <h2>QR Code Generator</h2>
+        <label>Text/URL <input id="qr-data" placeholder="https://example.com" /></label>
+        <button id="qr-btn">Generate QR</button>
+        <div id="qr-output"></div>
+      </article>
+
+      <article class="panel">
+        <h2>IP Address Lookup</h2>
+        <button id="ip-btn">Lookup My IP</button>
+        <pre id="ip-output"></pre>
+      </article>
+
+      <article class="panel">
+        <h2>Currency Converter</h2>
+        <p class="hint">Uses Frankfurter free exchange rates for reliable no-key conversion.</p>
+        <label>Amount <input id="curr-amount" type="number" value="1" /></label>
+        <label>From <input id="curr-from" value="USD" /></label>
+        <label>To <input id="curr-to" value="EUR" /></label>
+        <button id="curr-btn">Convert</button>
+        <pre id="curr-output"></pre>
+      </article>
+
+      <article class="panel">
+        <h2>Dictionary/Thesaurus Lookup</h2>
+        <label>Word <input id="dict-word" placeholder="serendipity" /></label>
+        <button id="dict-btn">Lookup</button>
+        <pre id="dict-output"></pre>
+      </article>
+
+      <article class="panel">
+        <h2>Wikipedia Summary Finder</h2>
+        <label>Topic <input id="wiki-topic" placeholder="Quantum mechanics" /></label>
+        <button id="wiki-btn">Get Summary</button>
+        <pre id="wiki-output"></pre>
+      </article>
+
+      <article class="panel">
+        <h2>Page Speed Auditor</h2>
+        <label>URL <input id="speed-url" placeholder="https://example.com" /></label>
+        <button id="speed-btn">Audit</button>
+        <pre id="speed-output"></pre>
+      </article>
+
+      <article class="panel">
+        <h2>Language Translator</h2>
+        <label>Text <textarea id="trans-text" placeholder="Hello world"></textarea></label>
+        <label>From <input id="trans-from" value="en" /></label>
+        <label>To <input id="trans-to" value="es" /></label>
+        <button id="trans-btn">Translate</button>
+        <pre id="trans-output"></pre>
+      </article>
+
+      <article class="panel">
+        <h2>Movie Info Lookup</h2>
+        <label>OMDb API Key <input id="movie-key" placeholder="Enter API key" /></label>
+        <label>Title <input id="movie-title" placeholder="Inception" /></label>
+        <button id="movie-btn">Lookup Movie</button>
+        <pre id="movie-output"></pre>
+      </article>
+
+      <article class="panel">
+        <h2>Random Joke Generator</h2>
+        <button id="joke-btn">Tell Me a Joke</button>
+        <pre id="joke-output"></pre>
+      </article>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
